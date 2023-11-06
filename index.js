@@ -18,6 +18,7 @@
 
 const inquirer = require("inquirer");
 const mysql = require('mysql2');
+const { printTable } = require("console-table-printer");
 
 const db = mysql.createConnection(
   {
@@ -30,6 +31,14 @@ const db = mysql.createConnection(
 );
 
 // Query database - sample SQL query if you're not using Sequelize (results are a JSON, I think)
-// db.query('SELECT * FROM students', function (err, results) {
-//   console.log(results);
-// });
+db.query('SELECT * FROM employee', function (err, results) {
+  printTable(results);
+});
+
+// do I need to use express? Don't think so
+
+// do I need to be able to create new databases on other users' computers, or just mine? If just mine, what do I put in Instructions in README?
+
+// do I need to give the user the ability to disconnect from the database at any point? Or is it assumed user exits app by killing terminal?
+
+// how do I get the big splash screen on the console like in the walkthrough video?
