@@ -31,24 +31,17 @@ const db = mysql.createConnection(
   console.log(`Connected to the employee_db database.`)
 );
 
-// how do I set color for the output below???
-
 art.font("Employee Tracker", "doom", (err, rendered) => {
   if (err)
     console.error(err);
   else
-    console.log(rendered);
+    console.log(art.style(rendered, "cyan", true));
 })
 
-// Query database - sample SQL query if you're not using Sequelize (results are a JSON, I think)
-db.query('SELECT * FROM employee', function (err, results) {
+db.query('SELECT e.id, e.first_name, e.last_name, r.title, d.name department, r.salary, CONCAT(m.first_name, " ", m.last_name) manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id;', function (err, results) {
   printTable(results);
 });
 
-// do I need to use express? Don't think so NO
-
 // do I need to be able to create new databases on other users' computers, or just mine? JUST MINE If just mine, what do I put in Instructions in README? have user run schema.sql and seeds.sql on user computer, add that to instructions
 
-// do I need to give the user the ability to disconnect from the database at any point? NO Or is it assumed user exits app by killing terminal? CORRECT
-
-// how do I get the big splash screen on the console like in the walkthrough video? NPM ASCII ART
+// resume at 0:28 of walkthrough video
