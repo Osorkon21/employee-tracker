@@ -7,6 +7,10 @@ function directFromMainMenu(response, db) {
     case 0:
       viewAllEmployees(db);
       return;
+    case 1:
+      addEmployee(db);
+      return;
+    // add case 2 here
     case 3:
       viewAllRoles(db);
       return;
@@ -80,6 +84,63 @@ function viewAllEmployees(db) {
     .then(() => mainMenu(db));
 }
 
+function addEmployee(db) {
+  db.query("SELECT id, first_name, last_name FROM employee;", (err, data) => {
+    var manager = data.map((obj) => ({ name: (obj.first_name + " " + obj.last_name), value: obj.id }));
+
+    db.query("SELECT id, title FROM role;", (err, data) => {
+      var role = data.map((obj) => ({ name: obj.title, value: obj.id }))
+
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "firstName",
+            validate: (firstName) => {
+              if (!firstName)
+                return "Employee must have a first name.";
+
+              return true;
+            }
+          },
+          {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "lastName",
+            validate: (lastName) => {
+              if (!lastName)
+                return "Employee must have a last name.";
+
+              return true;
+            }
+          },
+          {
+            type: "list",
+            message: "What is the employee's role?",
+            name: "role_id",
+            choices: role
+          },
+          {
+            type: "list",
+            message: "Who is the employee's manager?",
+            name: "manager_id",
+            choices: manager
+          }
+        ])
+        .then((response) => {
+          console.log(`\nAdded ${response.firstName} ${response.lastName} as an employee.\n`);
+
+          console.log(response.role_id)
+
+          db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [response.firstName, response.lastName, response.role_id, response.manager_id], (err, data) => {
+            mainMenu(db);
+          });
+        });
+    });
+  })
+}
+
 function viewAllRoles(db) {
   db.promise()
     .query('SELECT role.id, title, department.name department, salary FROM role JOIN department ON role.department_id = department.id;')
@@ -90,63 +151,56 @@ function viewAllRoles(db) {
 
 function addRole(db) {
   var role;
-  var departments;
 
   db.query("SELECT title FROM role", (err, data) => role = data);
 
   db.query("SELECT * FROM department;", (err, data) => {
+    var departments = data.map((obj) => ({ name: obj.name, value: obj.id }))
 
-    // fix this it's spitting out undefined
-    departments = data.map((obj) => {
-      obj = { name: obj.name, value: obj.id };
-    });
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the title of the role?",
+          name: "newTitle",
+          validate: (newTitle) => {
+            if (!newTitle)
+              return "Role must have a title.";
 
-    console.log(departments);
-  });
+            for (var i = 0; i < role.length; i++) {
+              if (role[i].title.toLowerCase() === newTitle.toLowerCase())
+                return "Role title already exists. Use a different title.";
+            }
 
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the title of the role?",
-        name: "newTitle",
-        validate: (newTitle) => {
-          if (!newTitle)
-            return "Role must have a title.";
-
-          for (var i = 0; i < role.length; i++) {
-            if (role[i].title.toLowerCase() === newTitle.toLowerCase())
-              return "Role title already exists. Use a different title.";
-          }
-
-          return true;
-        }
-      },
-      {
-        type: "input",
-        message: "What is the salary of the role?",
-        name: "newSalary",
-        validate: (newSalary) => {
-          if (isNaN(newSalary))
-            return "You must enter a number.";
-          else
             return true;
+          }
+        },
+        {
+          type: "input",
+          message: "What is the salary of the role?",
+          name: "newSalary",
+          validate: (newSalary) => {
+            if (isNaN(newSalary))
+              return "You must enter a number.";
+            else
+              return true;
+          }
+        },
+        {
+          type: "list",
+          message: "Which department does the role belong to?",
+          name: "department_id",
+          choices: departments
         }
-      },
-      {
-        type: "list",
-        message: "Which department does the role belong to?",
-        name: "department_id",
-        choices: departments
-      }
-    ])
-    .then((response) => {
-      console.log(`\nAdded new ${response.newTitle} role.\n`);
+      ])
+      .then((response) => {
+        console.log(`\nAdded new ${response.newTitle} role.\n`);
 
-      db.query("INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?);", [response.newTitle, response.department_id, response.newSalary], (err, data) => {
-        mainMenu(db);
+        db.query("INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?);", [response.newTitle, response.department_id, response.newSalary], (err, data) => {
+          mainMenu(db);
+        });
       });
-    });
+  });
 }
 
 function viewAllDepartments(db) {
