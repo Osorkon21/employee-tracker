@@ -17,7 +17,7 @@
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
 const art = require("ascii-art");
-const { mainMenu } = require("./assets/js/prompts");
+const mainMenu = require("./assets/js/prompts");
 const mysql = require('mysql2');
 
 const db = mysql.createConnection(
@@ -38,10 +38,6 @@ art.font("Employee Tracker", "doom", (err, rendered) => {
     mainMenu(db);
   }
 })
-
-// db.query('SELECT e.id, e.first_name, e.last_name, r.title, d.name department, r.salary, CONCAT(m.first_name, " ", m.last_name) manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id;', function (err, results) {
-//   printTable(results);
-// });
 
 // do I need to be able to create new databases on other users' computers, or just mine? JUST MINE If just mine, what do I put in Instructions in README? have user run schema.sql and seeds.sql on user computer, add that to instructions
 
