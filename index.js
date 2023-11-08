@@ -39,6 +39,4 @@ art.font("Employee Tracker", "doom", (err, rendered) => {
   }
 })
 
-// do I need to be able to create new databases on other users' computers, or just mine? JUST MINE If just mine, what do I put in Instructions in README? have user run schema.sql and seeds.sql on user computer, add that to instructions
-
-// resume at 0:28 of walkthrough video
+// If just mine, what do I put in Instructions in README? have user run schema.sql and seeds.sql on user computer, add that to instructions
