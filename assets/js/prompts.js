@@ -10,7 +10,9 @@ function directFromMainMenu(response, db) {
     case 1:
       addEmployee(db);
       return;
-    // add case 2 here
+    case 2:
+      updateEmployeeRole(db);
+      return;
     case 3:
       viewAllRoles(db);
       return;
@@ -89,7 +91,7 @@ function addEmployee(db) {
     var manager = data.map((obj) => ({ name: (obj.first_name + " " + obj.last_name), value: obj.id }));
 
     db.query("SELECT id, title FROM role;", (err, data) => {
-      var role = data.map((obj) => ({ name: obj.title, value: obj.id }))
+      var roles = data.map((obj) => ({ name: obj.title, value: obj.id }));
       manager.unshift({ name: "None", value: null });
 
       inquirer
@@ -120,7 +122,7 @@ function addEmployee(db) {
             type: "list",
             message: "What is the employee's role?",
             name: "role_id",
-            choices: role
+            choices: roles
           },
           {
             type: "list",
@@ -133,11 +135,40 @@ function addEmployee(db) {
           console.log(`\nAdded ${response.firstName} ${response.lastName} as an employee.\n`);
 
           db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [response.firstName, response.lastName, response.role_id, response.manager_id], (err, data) => {
-            if (err)
-              console.error(err);
-
             mainMenu(db);
           });
+        });
+    });
+  })
+}
+
+function updateEmployeeRole(db) {
+  db.query("SELECT id, CONCAT(first_name, ' ', last_name) name FROM employee;", (err, data) => {
+    var employees = data.map((obj) => ({ name: obj.name, value: obj.id }));
+
+    db.query("SELECT id, title FROM role", (err, data) => {
+      var roles = data.map((obj) => ({ name: obj.title, value: obj.id }));
+
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which employee's role do you want to update?",
+            name: "employee_id",
+            choices: employees
+          },
+          {
+            type: "list",
+            message: "Which role do you want to assign to the selected employee?",
+            name: "role_id",
+            choices: roles
+          }
+        ])
+        .then((response) => {
+          console.log(`\nUpdated employee's role.\n`);
+
+          db.query("UPDATE employee SET role_id = ? WHERE id = ?;", [response.role_id, response.employee_id], (err, data) => mainMenu(db)
+          );
         });
     });
   })
@@ -198,9 +229,8 @@ function addRole(db) {
       .then((response) => {
         console.log(`\nAdded new ${response.newTitle} role.\n`);
 
-        db.query("INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?);", [response.newTitle, response.department_id, response.newSalary], (err, data) => {
-          mainMenu(db);
-        });
+        db.query("INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?);", [response.newTitle, response.department_id, response.newSalary], (err, data) => mainMenu(db)
+        );
       });
   });
 }
