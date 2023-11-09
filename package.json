@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ascii-art": "^2.8.5",
+    "console-table-printer": "^2.11.2",
     "inquirer": "^8.2.4",
     "mysql2": "^3.6.3"
   }
