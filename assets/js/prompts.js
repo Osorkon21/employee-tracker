@@ -78,7 +78,7 @@ function mainMenu(db) {
 
 function viewAllEmployees(db) {
   db.promise()
-    .query('SELECT e.id, e.first_name, e.last_name, r.title, d.name department, r.salary, CONCAT(m.first_name, " ", m.last_name) manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id;')
+    .query('SELECT e.id, e.first_name, e.last_name, r.title, d.name department, r.salary, CONCAT(m.first_name, " ", m.last_name) manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department_id = d.id LEFT JOIN employee m ON e.manager_id = m.id ORDER BY e.last_name;')
     .then(([rows, fields]) => printTable(rows))
     .catch((err) => console.error(err))
     .then(() => mainMenu(db));
@@ -90,6 +90,7 @@ function addEmployee(db) {
 
     db.query("SELECT id, title FROM role;", (err, data) => {
       var role = data.map((obj) => ({ name: obj.title, value: obj.id }))
+      manager.unshift({ name: "None", value: null });
 
       inquirer
         .prompt([
@@ -131,9 +132,10 @@ function addEmployee(db) {
         .then((response) => {
           console.log(`\nAdded ${response.firstName} ${response.lastName} as an employee.\n`);
 
-          console.log(response.role_id)
-
           db.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);", [response.firstName, response.lastName, response.role_id, response.manager_id], (err, data) => {
+            if (err)
+              console.error(err);
+
             mainMenu(db);
           });
         });
@@ -143,7 +145,7 @@ function addEmployee(db) {
 
 function viewAllRoles(db) {
   db.promise()
-    .query('SELECT role.id, title, department.name department, salary FROM role JOIN department ON role.department_id = department.id;')
+    .query('SELECT role.id, title, department.name department, salary FROM role JOIN department ON role.department_id = department.id ORDER BY department;')
     .then(([rows, fields]) => printTable(rows))
     .catch((err) => console.error(err))
     .then(() => mainMenu(db));
@@ -205,7 +207,7 @@ function addRole(db) {
 
 function viewAllDepartments(db) {
   db.promise()
-    .query('SELECT * FROM department;')
+    .query('SELECT * FROM department ORDER BY name;')
     .then(([rows, fields]) => printTable(rows))
     .catch((err) => console.error(err))
     .then(() => mainMenu(db));
