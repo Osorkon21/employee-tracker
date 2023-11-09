@@ -6,7 +6,9 @@
 
   ## Installation
 
-  Node.js and mySQL are required. Clone this repo and navigate to the root folder on your console. Enter ```mysql -u root -p``` to start the mySQL shell and enter your mySQL password. Then, enter ```source ./db/schema.sql``` and hit Return. Then enter ```source ./db/seeds.sql``` and hit Return. This creates and seeds your employee database.
+  Node.js and mySQL are required. Clone this repo and navigate to the root folder on your console. Enter ```mysql -u root -p``` to start the mySQL shell and enter your mySQL password. Then, enter ```source ./db/schema.sql``` and hit Return. Then enter ```source ./db/seeds.sql``` and hit Return. This creates and seeds your employee database. Type ```quit``` to exit the mySQL shell.
+
+  Finally, enter ```npm i``` and hit Return to install the necessary node packages.
 
   ## Usage
 
